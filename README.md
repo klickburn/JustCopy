@@ -1,13 +1,22 @@
-# Recalculate the average number of channels contacted before a payment is made (excluding PYMT)
-average_channels_updated = channels_and_dates['channel'].apply(len).mean()
+# Define a function to assign time-decay credits
+def assign_time_decay_credits(channels_list):
+    n = len(channels_list)
+    # The sum of a geometric series: sum(0.5^i) for i from 0 to n is (1 - 0.5^(n+1)) / (1 - 0.5)
+    total_credit = (1 - 0.5**(n+1)) / 0.5
+    weights = [(0.5**i) / total_credit for i in range(n)]
+    credits_dict = {channels_list[i]: weights[::-1][i] for i in range(n)}
+    return credits_dict
 
-# Plot the updated average number of channels
-plt.figure(figsize=(8, 6))
-plt.bar(['Average Channels Before Payment'], [average_channels_updated], color='orchid')
-plt.title('Updated Average Number of Channels Contacted Before a Payment (Excluding PYMT)')
-plt.ylabel('Average Number of Channels')
-plt.grid(axis='y', which='both')
-plt.tight_layout()
-plt.show()
+# Assign time-decay credits to channels for each account
+time_decay_credits_per_account = channels_before_payment.apply(assign_time_decay_credits)
 
-average_channels_updated
+# Explode the series to make aggregations easier
+time_decay_credits_df = time_decay_credits_per_account.explode()
+
+# Convert the dictionary of credits to a dataframe for easier aggregation
+credits_df = time_decay_credits_per_account.apply(pd.Series).reset_index().melt(id_vars='acct_ref_nb', value_name='credit').dropna()
+
+# Aggregate to get total time-decay credits for each channel
+total_time_decay_credits = credits_df.groupby('variable')['credit'].sum()
+
+total_time_decay_credits
