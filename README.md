@@ -1,15 +1,13 @@
-# 5. Active days for credited touchpoints
-active_days = credited_df[credited_df['credit'] > 0]['date'].dt.date.value_counts()
+def get_refined_first_touchpoint(group):
+    if 'pymt' in group['channel'].values:
+        for _, row in group.iterrows():
+            if row['channel'] in channels:
+                return row['channel']
+    return None
 
-# Visualization
-plt.figure(figsize=(12, 6))
+# Applying the refined function to each group of acct_ref_nb
+refined_first_touchpoints = modified_events_df.groupby('acct_ref_nb').apply(get_refined_first_touchpoint)
 
-# Plotting active days for credited touchpoints
-active_days.sort_index().plot(kind='line', color='dodgerblue', marker='o')
-plt.title('Active Days for Credited Touchpoints')
-plt.ylabel('Number of Credited Touchpoints')
-plt.xlabel('Date')
-
-plt.tight_layout()
-plt.grid(True)
-plt.show()
+# Counting the occurrences of each first touchpoint leading to a payment
+refined_first_touchpoint_counts = refined_first_touchpoints.value_counts()
+refined_first_touchpoint_counts
