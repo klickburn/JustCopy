@@ -1,3 +1,12 @@
+# Extract month-year from date for aggregation
+events_df_filtered['month_year'] = events_df_filtered['date'].dt.to_period('M')
+
+# Calculate the number of unique accounts contacted per month per channel
+total_accounts_monthly = events_df_filtered.groupby(['month_year', 'first_contact_channel'])['acct_ref_nb'].nunique().reset_index()
+
+# Calculate the number of unique accounts that made a payment per month per channel
+payment_accounts_monthly = events_df_filtered[events_df_filtered['channel'] == 'PYMT'].groupby(['month_year', 'first_contact_channel'])['acct_ref_nb'].nunique().reset_index()
+
 # Avoid the issue by not using fillna directly on the Period column
 # Instead, we'll compute success rates and handle missing values during the computation
 
