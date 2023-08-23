@@ -1,3 +1,9 @@
+# For accounts with payments, get the list of channels contacted and the last date of contact before payment
+channels_and_dates = events_df_filtered[events_df_filtered['acct_ref_nb'].isin(accounts_with_payment)].groupby('acct_ref_nb').agg({
+    'channel': lambda x: [channel for channel in x.unique() if channel != 'PYMT' or list(x).count('PYMT') == 1],
+    'date': 'max'
+}).reset_index()
+
 # Remove PYMT from the channels contacted before payment
 channels_and_dates['channel'] = channels_and_dates['channel'].apply(lambda x: [channel for channel in x if channel != 'PYMT'])
 
