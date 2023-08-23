@@ -1,19 +1,32 @@
-# Calculate the time taken from the first contact to payment for each account
-time_to_payment = events_df_filtered[events_df_filtered['acct_ref_nb'].isin(accounts_with_payment)].groupby('acct_ref_nb').agg({
-    'date': ['min', 'max']
-})
+def assign_u_shaped_credits(channels_list):
+    n = len(channels_list)
+    
+    # If there's only one channel, assign full credit to it
+    if n == 1:
+        return {channels_list[0]: 1}
+    
+    # If there are two channels, assign half credit to each
+    elif n == 2:
+        return {channel: 0.5 for channel in channels_list}
+    
+    # For more than two channels, assign 40% credit to first and last touchpoints, and distribute 20% equally among others
+    else:
+        credit_for_others = 0.2 / (n - 2)
+        credits_dict = {channels_list[0]: 0.4, channels_list[-1]: 0.4}
+        
+        # Assign equal credit to intermediate channels
+        for channel in channels_list[1:-1]:
+            credits_dict[channel] = credits_dict.get(channel, 0) + credit_for_others
+            
+        return credits_dict
 
-time_to_payment.columns = ['first_contact_date', 'payment_date']
-time_to_payment['days_to_payment'] = (time_to_payment['payment_date'] - time_to_payment['first_contact_date']).dt.days
+# Assign U-shaped credits to channels for each account
+u_shaped_credits_per_account = channels_before_payment.apply(assign_u_shaped_credits)
 
-# Get the first contact channel for each account
-first_contact_channel = events_df_filtered.groupby('acct_ref_nb').first()['channel']
+# Convert the dictionary of credits to a dataframe for easier aggregation
+u_shaped_credits_df = u_shaped_credits_per_account.apply(pd.Series).reset_index().melt(id_vars='acct_ref_nb', value_name='credit').dropna()
 
-# Merge with the time_to_payment dataframe
-time_to_payment = time_to_payment.merge(first_contact_channel, left_index=True, right_index=True)
+# Aggregate to get total U-shaped credits for each channel
+total_u_shaped_credits = u_shaped_credits_df.groupby('variable')['credit'].sum()
 
-# Calculate the weighted average time to payment for each channel based on the time-decay credit
-weighted_time_to_payment = credits_df.merge(time_to_payment, left_on='acct_ref_nb', right_index=True)
-weighted_avg_time = (weighted_time_to_payment.groupby('variable').apply(lambda x: (x['credit'] * x['days_to_payment']).sum()) / weighted_time_to_payment.groupby('variable')['credit'].sum())
-
-weighted_avg_time
+total_u_shaped_credits
