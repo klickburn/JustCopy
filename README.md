@@ -1,9 +1,10 @@
-# Plotting the frequency of each channel driving customer engagement
+# Plotting the distribution of customer engagement based on number of contact channels interacted with
 plt.figure(figsize=(10, 6))
-channel_engagement_frequency[contact_channels].sort_values().plot(kind='barh', color='orchid')
-plt.title('Frequency of Each Channel Driving Customer Engagement')
-plt.xlabel('Frequency')
-plt.ylabel('Channel')
-plt.grid(axis='x')
+num_channels_before_response.value_counts().sort_index().plot(kind='bar', color='lightblue')
+plt.title('Distribution of Customer Engagement by Number of Contact Channels Interacted With')
+plt.xlabel('Number of Contact Channels')
+plt.ylabel('Number of Customers')
+plt.grid(axis='y')
+plt.xticks(rotation=0)
 plt.tight_layout()
 plt.show()
