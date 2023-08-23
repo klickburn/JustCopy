@@ -1,10 +1,15 @@
-# Plotting the distribution of customer engagement based on number of contact channels interacted with
-plt.figure(figsize=(10, 6))
-num_channels_before_response.value_counts().sort_index().plot(kind='bar', color='lightblue')
-plt.title('Distribution of Customer Engagement by Number of Contact Channels Interacted With')
-plt.xlabel('Number of Contact Channels')
-plt.ylabel('Number of Customers')
-plt.grid(axis='y')
-plt.xticks(rotation=0)
-plt.tight_layout()
-plt.show()
+# Filter accounts that made a payment
+accounts_with_payment = events_df[events_df['channel'] == 'PYMT']['acct_ref_nb'].unique()
+
+# Get the sequence of channels leading up to the payment for each account
+conversion_paths = events_df[events_df['acct_ref_nb'].isin(accounts_with_payment)].groupby('acct_ref_nb')['channel'].apply(list)
+
+# Convert the sequences to a string format for easier counting
+conversion_paths_str = conversion_paths.apply(lambda x: ' -> '.join(x))
+
+# Count the frequency of each unique sequence
+path_frequencies = conversion_paths_str.value_counts()
+
+# Display the top conversion path and its frequency
+top_conversion_path = path_frequencies.head(1)
+top_conversion_path
