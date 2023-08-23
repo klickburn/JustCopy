@@ -1,9 +1,11 @@
-# Extract day of week from date
-events_df_filtered['day_of_week'] = events_df_filtered['date'].dt.day_name()
-
-# Count the number of payments made on each day of the week
-payments_per_day = events_df_filtered[events_df_filtered['channel'] == 'PYMT']['day_of_week'].value_counts()
-
 # Order by days of the week
-days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-payments_per_day = payments_per_day.re
+payments_per_day = payments_per_day.reindex(days_order)
+
+# Plot the distribution of payments across days of the week
+plt.figure(figsize=(10, 6))
+payments_per_day.plot(kind='bar', color='orchid')
+plt.title('Number of Payments Made on Each Day of the Week')
+plt.xlabel('Day of the Week')
+plt.ylabel('Number of Payments')
+plt.grid(axis='y')
+plt.show()
