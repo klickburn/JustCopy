@@ -1,12 +1,11 @@
-# Calculate the weighted average time to payment for each channel based on the U-shaped credits
-weighted_time_to_payment_u_shaped = u_shaped_credits_df.merge(time_to_payment, left_on='acct_ref_nb', right_index=True)
-weighted_avg_time_u_shaped = (weighted_time_to_payment_u_shaped.groupby('variable').apply(lambda x: (x['credit'] * x['days_to_payment']).sum()) / weighted_time_to_payment_u_shaped.groupby('variable')['credit'].sum())
+# Calculate the updated average U-shaped credit per channel
+average_u_shaped_credit = u_shaped_credits_df.groupby('variable')['credit'].mean()
 
-# Plot the weighted average time to payment for each channel based on U-shaped credits
+# Plot the updated average U-shaped credit for each channel
 plt.figure(figsize=(10, 6))
-weighted_avg_time_u_shaped.sort_values().plot(kind='barh', color='gold')
-plt.title('Weighted Average Time from First Contact to Payment (U-Shaped Credit)')
-plt.xlabel('Average Days to Payment')
+average_u_shaped_credit.sort_values().plot(kind='barh', color='turquoise')
+plt.title('Average U-Shaped Credit per Channel')
+plt.xlabel('Average U-Shaped Credit')
 plt.ylabel('Channel')
 plt.grid(axis='x')
 plt.tight_layout()
