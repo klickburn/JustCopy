@@ -1,14 +1,16 @@
-# Group by date and channel to get the sum of U-shaped credits for each channel over time
-u_shaped_credits_over_time = u_shaped_credits_df.merge(events_df_filtered[['acct_ref_nb', 'date', 'channel']], left_on=['acct_ref_nb', 'variable'], right_on=['acct_ref_nb', 'channel'])
-u_shaped_credits_over_time = u_shaped_credits_over_time.groupby(['date', 'variable'])['credit'].sum().unstack().fillna(0).cumsum()
+# Create a comparison dataframe with U-shaped credits
+comparison_df_u_shaped = pd.DataFrame({
+    'Total Contacts': total_contacts.drop('PYMT', errors='ignore'),
+    'Equal Credit': channel_credits,
+    'Time-Decay Credit': total_time_decay_credits,
+    'U-Shaped Credit': total_u_shaped_credits
+})
 
-# Plot the evolution of U-shaped credits over time for each channel
-plt.figure(figsize=(14, 8))
-u_shaped_credits_over_time.plot(ax=plt.gca())
-plt.title('Evolution of U-Shaped Credits for Each Channel Over Time')
-plt.xlabel('Date')
-plt.ylabel('Cumulative U-Shaped Credits')
-plt.legend(title='Channel', bbox_to_anchor=(1.05, 1), loc='upper left')
+# Plot the comparison for each channel
+comparison_df_u_shaped.plot(kind='bar', figsize=(16, 8), color=['royalblue', 'mediumseagreen', 'lightcoral', 'teal'])
+plt.title('Comparison: Total Contacts vs. Different Attribution Models for Each Channel')
+plt.xlabel('Channel')
+plt.ylabel('Count')
 plt.grid(axis='y')
 plt.tight_layout()
 plt.show()
