@@ -1,20 +1,29 @@
-def predict_next_touchpoints(current_channel, transition_matrix, num_predictions=3):
-    """
-    Predict the next touchpoints given a current channel and a transition matrix.
-    """
-    # Get the transition probabilities for the current channel
-    next_probabilities = transition_matrix.loc[current_channel]
-    
-    # Exclude the PYMT channel as we want to predict touchpoints leading to payment
-    next_probabilities = next_probabilities.drop('PYMT', errors='ignore')
-    
-    # Get the top channels with the highest probabilities
-    top_channels = next_probabilities.sort_values(ascending=False).head(num_predictions).index.tolist()
-    
-    return top_channels
+from nltk import bigrams, FreqDist
+from collections import defaultdict
 
-# Example: Predict the next 3 touchpoints for a customer whose last interaction was 'EMAIL'
-sample_channel = 'EMAIL'
-predicted_touchpoints = predict_next_touchpoints(sample_channel, transition_matrix)
+# Extract bigrams from the data
+sequences = modified_events_df.groupby('acct_ref_nb')['channel'].apply(list)
+all_bigrams = [bigram for seq in sequences for bigram in bigrams(seq)]
 
-predicted_touchpoints
+# Build a frequency distribution for each bigram
+bigram_freq = FreqDist(all_bigrams)
+
+# Build a dictionary to store possible next steps for each bigram
+next_steps = defaultdict(list)
+
+for seq in sequences:
+    for i in range(len(seq) - 2):  # -2 because we need to look at the next item as well
+        current_bigram = (seq[i], seq[i + 1])
+        next_channel = seq[i + 2]
+        next_steps[current_bigram].append(next_channel)
+
+# For each bigram, determine the most likely next step
+most_likely_next = {}
+for bigram, next_channels in next_steps.items():
+    most_likely_next[bigram] = FreqDist(next_channels).most_common(1)[0][0]
+
+# Example: Predict the next touchpoint for a sequence ('EMAIL', 'LETTER')
+sample_bigram = ('EMAIL', 'LETTER')
+predicted_touchpoint_ngram = most_likely_next.get(sample_bigram, None)
+
+predicted_touchpoint_ngram
