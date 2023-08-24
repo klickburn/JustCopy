@@ -1,28 +1,20 @@
-def compute_transition_matrix(df, channel_column):
+def predict_next_touchpoints(current_channel, transition_matrix, num_predictions=3):
     """
-    Compute the Markov transition matrix based on a given dataframe and channel column.
+    Predict the next touchpoints given a current channel and a transition matrix.
     """
-    # List of unique channels
-    channels = df[channel_column].unique()
+    # Get the transition probabilities for the current channel
+    next_probabilities = transition_matrix.loc[current_channel]
     
-    # Initialize the transition matrix with zeros
-    matrix = pd.DataFrame(0, index=channels, columns=channels)
+    # Exclude the PYMT channel as we want to predict touchpoints leading to payment
+    next_probabilities = next_probabilities.drop('PYMT', errors='ignore')
     
-    for i in range(len(df) - 1):
-        # Check if the next row is from the same account (to avoid counting transitions between different accounts)
-        if i + 1 < len(df) and df.iloc[i]['acct_ref_nb'] == df.iloc[i + 1]['acct_ref_nb']:
-            current_channel = df.iloc[i][channel_column]
-            next_channel = df.iloc[i + 1][channel_column]
-            matrix.at[current_channel, next_channel] += 1
-            
-    # Convert counts to probabilities
-    for channel in channels:
-        total_transitions = matrix.loc[channel].sum()
-        if total_transitions > 0:
-            matrix.loc[channel] /= total_transitions
-            
-    return matrix
+    # Get the top channels with the highest probabilities
+    top_channels = next_probabilities.sort_values(ascending=False).head(num_predictions).index.tolist()
+    
+    return top_channels
 
-# Compute the transition matrix for the dataset
-transition_matrix = compute_transition_matrix(modified_events_df, 'channel')
-transition_matrix
+# Example: Predict the next 3 touchpoints for a customer whose last interaction was 'EMAIL'
+sample_channel = 'EMAIL'
+predicted_touchpoints = predict_next_touchpoints(sample_channel, transition_matrix)
+
+predicted_touchpoints
