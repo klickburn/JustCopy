@@ -1,23 +1,20 @@
-# Now, let's proceed with calculating Insight 2: Re-engagement Channels
+# For Insight 3: Channel Switching, we'll investigate if switching channels during the customer journey leads to increased payments.
 
-# Sort the events_df by account and date for tracking customer activity
-sorted_events_df = events_df.sort_values(by=['acct_ref_nb', 'date'])
+# Create a new column to hold the previous channel for each account
+sorted_events_df_large['prev_channel'] = sorted_events_df_large.groupby('acct_ref_nb')['channel'].shift(1)
 
-# Create a new column to hold the date of the previous contact for each account
-sorted_events_df['prev_contact_date'] = sorted_events_df.groupby('acct_ref_nb')['date'].shift(1)
+# Create a flag to identify when a channel switch occurs
+sorted_events_df_large['channel_switched'] = sorted_events_df_large['channel'] != sorted_events_df_large['prev_channel']
 
-# Calculate the days since the last contact for each account
-sorted_events_df['days_since_last_contact'] = (sorted_events_df['date'] - sorted_events_df['prev_contact_date']).dt.days
+# Filter the DataFrame to only include records where a channel switch occurred
+channel_switch_df = sorted_events_df_large[sorted_events_df_large['channel_switched']]
 
-# Define "inactive" as not having any contact for at least 30 days and create a flag for these records
-sorted_events_df['is_reengagement'] = sorted_events_df['days_since_last_contact'] >= 30
+# Filter the DataFrame further to only include records where a payment was made after a channel switch
+channel_switch_to_payment_df = channel_switch_df[channel_switch_df['channel'] == 'PYMT']
 
-# Filter the DataFrame to only include re-engagement records
-reengagement_df = sorted_events_df[sorted_events_df['is_reengagement']]
+# Count the number of times a payment was made after a channel was switched
+channel_switch_to_payment_count = channel_switch_to_payment_df['prev_channel'].value_counts().reset_index()
+channel_switch_to_payment_count.columns = ['prev_channel', 'payment_after_switch_count']
 
-# Count the number of re-engagements for each channel
-reengagement_count_by_channel = reengagement_df['channel'].value_counts().reset_index()
-reengagement_count_by_channel.columns = ['channel', 'reengagement_count']
-
-# Display the re-engagement count by channel
-reengagement_count_by_channel
+# Display the counts
+channel_switch_to_payment_count
