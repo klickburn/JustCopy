@@ -1,7 +1,5 @@
-# Insight 3: Identify the most frequently used channel within each unique cluster
-most_frequent_channel_per_cluster = events_df.groupby(['cluster_id', 'channel']).size().reset_index(name='frequency')
-most_frequent_channel_per_cluster = most_frequent_channel_per_cluster.sort_values(['cluster_id', 'frequency'], ascending=[True, False])
-most_frequent_channel_per_cluster = most_frequent_channel_per_cluster.drop_duplicates('cluster_id')
+# Insight 4: Calculate the ratio of payments to contacts for each unique cluster
+# This information is already calculated in most_effective_cluster DataFrame.
+# Let's sort it again by the ratio and display the top 10 clusters based on this ratio.
 
-# Display the top 10 clusters based on most frequent channel
-most_frequent_channel_per_cluster.head(10)
+most_effective_cluster.sort_values('payment_to_contact_ratio', ascending=False).head(10)
