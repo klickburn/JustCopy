@@ -1,5 +1,5 @@
-# Calculate the total number of contacts for each channel within each customer segment
-total_contacts_per_channel_per_segment = events_df.groupby(['segment', 'channel']).size().reset_index(name='total_contacts')
+# Calculate the total number of payments ("PYMT") within each customer segment
+total_payments_per_segment = events_df[events_df['channel'] == 'PYMT'].groupby('segment').size().reset_index(name='total_payments')
 
 # Display the data
-total_contacts_per_channel_per_segment.head(10)
+total_payments_per_segment
