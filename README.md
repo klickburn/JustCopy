@@ -1,8 +1,7 @@
-# Plot the distribution of customer segments by channel
-plt.figure(figsize=(16, 10))
-sns.countplot(x='channel', hue='segment', data=events_df, palette='viridis')
-plt.title('Channel Usage by Customer Segment')
-plt.xlabel('Channel')
+# Plot the distribution of account balances resulting in payment ("PYMT")
+plt.figure(figsize=(14, 8))
+sns.histplot(events_df[events_df['channel'] == 'PYMT']['acct_balance'], bins=20, kde=True)
+plt.title('Distribution of Account Balances Resulting in Payment')
+plt.xlabel('Account Balance ($)')
 plt.ylabel('Frequency')
-plt.legend(title='Segment', loc='upper right')
 plt.show()
