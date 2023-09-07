@@ -1,7 +1,8 @@
-# Identify the most common customer segment within each account balance range
-most_common_segment_per_balance_range = events_df.groupby(['balance_range', 'segment']).size().reset_index(name='frequency')
-most_common_segment_per_balance_range = most_common_segment_per_balance_range.sort_values(['balance_range', 'frequency'], ascending=[True, False])
-most_common_segment_per_balance_range = most_common_segment_per_balance_range.drop_duplicates('balance_range')
-
-# Display the data
-most_common_segment_per_balance_range
+# Plot the distribution of delinquency buckets within each account balance range
+plt.figure(figsize=(16, 10))
+sns.countplot(x='balance_range', hue='bucket', data=events_df, palette='viridis')
+plt.title('Distribution of Delinquency Buckets for Different Account Balance Ranges')
+plt.xlabel('Account Balance Range ($)')
+plt.ylabel('Frequency')
+plt.legend(title='Bucket', loc='upper right')
+plt.show()
