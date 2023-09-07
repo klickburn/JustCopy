@@ -1,8 +1,9 @@
-# Plot the distribution of channels within each account balance range
+# Plot the monthly trend of contacts for different account balance ranges
 plt.figure(figsize=(16, 10))
-sns.countplot(x='balance_range', hue='channel', data=events_df, palette='viridis')
-plt.title('Frequency of Each Channel within Each Account Balance Range')
-plt.xlabel('Account Balance Range ($)')
+sns.countplot(x='date_month_year', hue='balance_range', data=events_df, palette='viridis')
+plt.title('Monthly Trend of Contacts for Different Account Balance Ranges')
+plt.xlabel('Month-Year')
 plt.ylabel('Frequency')
-plt.legend(title='Channel', loc='upper right')
+plt.legend(title='Account Balance Range ($)', loc='upper left')
+plt.xticks(rotation=45)
 plt.show()
