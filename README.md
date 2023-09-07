@@ -1,7 +1,5 @@
-# Plot the distribution of account balances resulting in payment ("PYMT")
-plt.figure(figsize=(14, 8))
-sns.histplot(events_df[events_df['channel'] == 'PYMT']['acct_balance'], bins=20, kde=True)
-plt.title('Distribution of Account Balances Resulting in Payment')
-plt.xlabel('Account Balance ($)')
-plt.ylabel('Frequency')
-plt.show()
+# Calculate the total number of contacts for each channel within each bucket
+total_contacts_per_channel_per_bucket = events_df.groupby(['bucket', 'channel']).size().reset_index(name='total_contacts')
+
+# Display the data
+total_contacts_per_channel_per_bucket.head(10)
