@@ -1,5 +1,5 @@
-# Calculate the total number of contacts for each channel within each bucket
-total_contacts_per_channel_per_bucket = events_df.groupby(['bucket', 'channel']).size().reset_index(name='total_contacts')
+# Calculate the total number of payments ("PYMT") within each bucket
+total_payments_per_bucket = events_df[events_df['channel'] == 'PYMT'].groupby('bucket').size().reset_index(name='total_payments')
 
 # Display the data
-total_contacts_per_channel_per_bucket.head(10)
+total_payments_per_bucket
