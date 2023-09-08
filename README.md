@@ -1,4 +1,8 @@
-min_balance = events_df['acct_balance'].min()
-max_balance = events_df['acct_balance'].max()
+# Filter the dataframe for the specified channels
+valid_channels = ["EMAIL", "E-LETTER", "OUTBOUND", "LETTER", "TEXT", "INBOUND"]
+filtered_df = events_df[events_df['channel'].isin(valid_channels)]
 
-min_balance, max_balance
+# Group by account and get the first valid channel by date
+first_channel_df = filtered_df.groupby('acct_ref_nb').first().reset_index()
+
+first_channel_df.head(10)
