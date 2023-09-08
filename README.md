@@ -1,8 +1,14 @@
-E-LETTER: Approximately 1.34 per account
-EMAIL: Approximately 1.26 per account
-INBOUND: Approximately 1.27 per account
-LETTER: Approximately 1.43 per account
-LOGIN: Approximately 1.38 per account
-OUTBOUND: Approximately 1.28 per account
-PYMT: Approximately 1.35 per account
-TEXT: Approximately 1.24 per account
+events_df['next_date'] = events_df.groupby('acct_ref_nb')['date'].shift(-1)
+events_df['next_channel'] = events_df.groupby('acct_ref_nb')['channel'].shift(-1)
+
+# Filtering for the desired sequence and date difference
+outbound_then_pymt = events_df[
+    (events_df['channel'] == 'OUTBOUND') & 
+    (events_df['next_channel'] == 'PYMT') & 
+    ((events_df['next_date'] - events_df['date']).dt.days <= 30)
+]
+
+# Counting unique accounts
+unique_outbound_then_pymt_30days = outbound_then_pymt['acct_ref_nb'].nunique()
+
+unique_outbound_then_pymt_30days
