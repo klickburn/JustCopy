@@ -1,17 +1,21 @@
-# Filter the dataframe to get accounts with EMAIL as the first contact
-first_contact_email = sorted_events_df.drop_duplicates(subset=['acct_ref_nb'], keep='first')
-first_contact_email = first_contact_email[first_contact_email['channel'] == 'EMAIL']
+# First, we need to create a column that represents the date of the next event for each account
+sorted_events_df['next_event_date'] = sorted_events_df.groupby('acct_ref_nb')['date'].shift(-1)
 
-# Filter the dataframe to get accounts that made a payment
-payments = sorted_events_df[sorted_events_df['channel'] == 'PYMT']
+# Filter to get the first contact for each account
+first_contact_df = sorted_events_df.drop_duplicates(subset=['acct_ref_nb'], keep='first')
 
-# Merge the two dataframes to get accounts with EMAIL as the first contact and made a payment
-merged_df = pd.merge(first_contact_email, payments, on='acct_ref_nb', suffixes=('_email', '_pymt'))
+# Filter for payments within 30 days of the first contact
+payments_within_30_df = sorted_events_df[(sorted_events_df['channel'] == 'PYMT') & 
+                                         (sorted_events_df['date'] - sorted_events_df['next_event_date'] <= pd.Timedelta(days=30))]
 
-# Filter the merged dataframe to get accounts that made a payment within 30 days of the first contact
-accounts_matching_criteria = merged_df[merged_df['date_pymt'] - merged_df['date_email'] <= pd.Timedelta(days=30)]
+# Merge the two dataframes on account number
+merged_df = pd.merge(first_contact_df, payments_within_30_df, on='acct_ref_nb', how='left', suffixes=('_first', '_payment'))
 
-# Extract the unique account reference numbers
-unique_accounts = accounts_matching_criteria['acct_ref_nb'].unique()
+# Check if payment was made within 30 days for each first contact
+merged_df['payment_within_30_days'] = ~merged_df['date_payment'].isna()
 
-unique_accounts
+# Calculate the percentage of accounts making a payment within 30 days for each first contact channel
+payment_percentages = merged_df.groupby('channel_first')['payment_within_30_days'].mean().reset_index()
+payment_percentages['percentage'] = payment_percentages['payment_within_30_days'] * 100
+
+payment_percentages[['channel_first', 'percentage']]
