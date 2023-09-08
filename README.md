@@ -1,8 +1,11 @@
-# Filter the dataframe for the specified channels
-valid_channels = ["EMAIL", "E-LETTER", "OUTBOUND", "LETTER", "TEXT", "INBOUND"]
-filtered_df = events_df[events_df['channel'].isin(valid_channels)]
+# Define the balance bins
+bins = list(range(0, 5001, 500)) + [np.inf]
+labels = ["$0-$500", "$500-$1000", "$1000-$1500", "$1500-$2000", "$2000-$2500", 
+          "$2500-$3000", "$3000-$3500", "$3500-$4000", "$4000-$4500", "$4500-$5000", "$5000+"]
 
-# Group by account and get the first valid channel by date
-first_channel_df = filtered_df.groupby('acct_ref_nb').first().reset_index()
+# Categorize account balances
+first_channel_df['balance_category'] = pd.cut(first_channel_df['acct_balance'], bins=bins, labels=labels, right=False)
 
-first_channel_df.head(10)
+# Generate insights: distribution of the first channel of contact for each balance interval
+insights = first_channel_df.groupby(['balance_category', 'channel']).size().unstack().fillna(0).astype(int)
+insights
