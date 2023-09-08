@@ -1,21 +1,13 @@
-# First, we need to create a column that represents the date of the next event for each account
-sorted_events_df['next_event_date'] = sorted_events_df.groupby('acct_ref_nb')['date'].shift(-1)
+# List of channels to consider for the first channel
+channels_to_consider = ['EMAIL', 'E-LETTER', 'OUTBOUND', 'LETTER', 'TEXT', 'INBOUND']
 
-# Filter to get the first contact for each account
-first_contact_df = sorted_events_df.drop_duplicates(subset=['acct_ref_nb'], keep='first')
+# Filtering the dataframe to only consider rows with the channels in channels_to_consider
+filtered_df = events_df[events_df['channel'].isin(channels_to_consider)]
 
-# Filter for payments within 30 days of the first contact
-payments_within_30_df = sorted_events_df[(sorted_events_df['channel'] == 'PYMT') & 
-                                         (sorted_events_df['date'] - sorted_events_df['next_event_date'] <= pd.Timedelta(days=30))]
+# Finding the first occurrence of these channels for each account
+first_channel_df = filtered_df.groupby('acct_ref_nb').first().reset_index()
 
-# Merge the two dataframes on account number
-merged_df = pd.merge(first_contact_df, payments_within_30_df, on='acct_ref_nb', how='left', suffixes=('_first', '_payment'))
+# Count of the first channels
+first_channel_count = first_channel_df['channel'].value_counts()
 
-# Check if payment was made within 30 days for each first contact
-merged_df['payment_within_30_days'] = ~merged_df['date_payment'].isna()
-
-# Calculate the percentage of accounts making a payment within 30 days for each first contact channel
-payment_percentages = merged_df.groupby('channel_first')['payment_within_30_days'].mean().reset_index()
-payment_percentages['percentage'] = payment_percentages['payment_within_30_days'] * 100
-
-payment_percentages[['channel_first', 'percentage']]
+first_channel_count
