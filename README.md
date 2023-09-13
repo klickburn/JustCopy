@@ -1,14 +1,7 @@
-# Count unique customers for each channel
-unique_counts = events_df.groupby('channel')['acct_ref_nb'].nunique()
+# Count total events for each channel
+total_counts = events_df['channel'].value_counts()
 
-# Calculate the percentage for each channel
-total_unique_customers = events_df['acct_ref_nb'].nunique()
-percentages = (unique_counts / total_unique_customers) * 100
-
-# Combining results into a dataframe
-result_df = pd.DataFrame({
-    'Unique Customers': unique_counts,
-    'Percentage': percentages
-})
+# Add the total counts to the result dataframe
+result_df['Total Count'] = total_counts
 
 result_df
