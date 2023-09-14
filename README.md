@@ -1,7 +1,1 @@
-# Count total events for each channel
-total_counts = events_df['channel'].value_counts()
-
-# Add the total counts to the result dataframe
-result_df['Total Count'] = total_counts
-
-result_df
+From Contact to Collection: Understanding the insights from every touchpoint in the customer's journey to reconciliation.
