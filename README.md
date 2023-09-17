@@ -1,34 +1,23 @@
-# Extract unique channels from the dataframe (excluding 'PYMT')
-channels_to_check = events_df['channel'].unique().tolist()
-channels_to_check.remove('PYMT')
+# Step 1: Identify the first channel of contact and its date for each account
+first_contact = events_df.groupby('acct_ref_nb').first().reset_index()
 
-# Re-compute the percentages as described earlier
-result_dict = {}
+# Merge with the main dataframe to get future events for these accounts
+merged_data = pd.merge(first_contact, events_df, on='acct_ref_nb', suffixes=('_first', '_event'))
 
-for channel in channels_to_check:
-    # Extract accounts and dates for the current channel
-    channel_data = events_df[events_df['channel'] == channel][['acct_ref_nb', 'date']]
-    
-    # Merge with the main dataframe to get future events for these accounts
-    merged_data = pd.merge(channel_data, events_df, on='acct_ref_nb', suffixes=('_channel', '_event'))
-    
-    # Filter where the event date is within 30 days of the channel date and the event is 'PYMT'
-    payment_within_30_days = merged_data[
-        (merged_data['date_event'] > merged_data['date_channel']) &
-        (merged_data['date_event'] <= merged_data['date_channel'] + timedelta(days=30)) &
-        (merged_data['channel'] == 'PYMT')
-    ]
-    
-    # Count unique accounts that made a payment within 30 days
-    accounts_paid = payment_within_30_days['acct_ref_nb'].nunique()
-    
-    # Count unique accounts contacted via the current channel
-    total_accounts_contacted = channel_data['acct_ref_nb'].nunique()
-    
-    # Calculate the percentage
-    percentage_paid = (accounts_paid / total_accounts_contacted) * 100 if total_accounts_contacted > 0 else 0
-    
-    # Store the result
-    result_dict[channel] = percentage_paid
+# Filter where the event date is within 30 days of the first contact date and the event is 'PYMT'
+payment_within_30_days = merged_data[
+    (merged_data['date_event'] > merged_data['date_first']) &
+    (merged_data['date_event'] <= merged_data['date_first'] + timedelta(days=30)) &
+    (merged_data['channel_event'] == 'PYMT')
+]
 
-result_dict
+# Count unique accounts that made a payment within 30 days grouped by the first contact channel
+accounts_paid = payment_within_30_days.groupby('channel_first')['acct_ref_nb'].nunique()
+
+# Count unique accounts contacted via each channel
+total_accounts_contacted = first_contact['channel'].value_counts()
+
+# Calculate the percentage
+percentage_paid = (accounts_paid / total_accounts_contacted) * 100
+
+percentage_paid.fillna(0).to_dict()
