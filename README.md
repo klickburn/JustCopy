@@ -1,7 +1,8 @@
-# Filter out PYMT channel for this analysis
-channels_to_check = [channel for channel in channels if channel != 'PYMT']
+# Extract unique channels from the dataframe (excluding 'PYMT')
+channels_to_check = events_df['channel'].unique().tolist()
+channels_to_check.remove('PYMT')
 
-# Results storage
+# Re-compute the percentages as described earlier
 result_dict = {}
 
 for channel in channels_to_check:
