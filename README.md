@@ -1,4 +1,1 @@
-def custom_formatter(x, pos):
-    return '{}K'.format(int(x//1000))
-
-ax.yaxis.set_major_formatter(FuncFormatter(custom_formatter))
+plt.yticks([100000, 200000, 300000, 400000, 500000, 600000], ['100K', '200K', '300K', '400K', '500K', '600K'])
