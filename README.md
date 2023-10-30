@@ -1,14 +1,29 @@
 import os
 import re
 import pandas as pd
+import hashlib
+
+def file_hash(file_path):
+    hasher = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        buf = f.read(65536)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = f.read(65536)
+    return hasher.hexdigest()
 
 def find_sas_files(directories):
     sas_files = []
+    processed_files = set()
     for directory in directories:
         for root, _, files in os.walk(directory):
             for file in files:
                 if file.endswith('.sas'):
-                    sas_files.append(os.path.join(root, file))
+                    file_path = os.path.join(root, file)
+                    hash_val = file_hash(file_path)
+                    if hash_val not in processed_files:
+                        processed_files.add(hash_val)
+                        sas_files.append(file_path)
     return sas_files
 
 def extract_sql_queries(sas_code):
