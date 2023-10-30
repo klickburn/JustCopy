@@ -1,21 +1,58 @@
-Certainly! Here's a bullet-point summary that encapsulates your work over the year:
 
-- Successfully managed and fulfilled a wide array of requests, including 22 standard requests, 4 modifications, 2 new report developments, 14 report database migrations, 1 research request, and 1 ad hoc request, showcasing versatility and reliability.
+Sure, I can help you create a Python script to traverse through all the subfolders in the specified location, find all SAS code files, parse them to extract SQL queries, and then extract schema and table names from those queries.
 
-- Assumed ownership of five bankruptcy reports, proactively resolving critical issues and establishing effective collaboration with business stakeholders to enhance report accuracy and reliability.
+The task can be broken down into the following steps:
+1. Traverse through all the subfolders in the specified location.
+2. For each file, check if it has a .sas extension.
+3. If it is a SAS file, open the file and parse the content to extract SQL queries.
+4. Parse the SQL queries to extract schema and table names.
 
-- Partnered with Greg to create and implement a database architecture using Neo4j, learning the Cypher query language and delving into graph theory, which culminated in a presentation to key stakeholders.
+Here is a basic script to get you started:
 
-- Generated valuable insights for contact strategy by creating multiple machine learning models and fostering a network of collaboration with experienced individuals in the field, resulting in a comprehensive presentation that enhanced understanding of the collections process.
+```python
+import os
+import re
 
-- Worked closely with Geoffrey to develop a neural network machine learning model aimed at predicting contact strategy, continuously working to gather more data to improve customer journey insights.
+def find_sas_files(directory):
+    sas_files = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.sas'):
+                sas_files.append(os.path.join(root, file))
+    return sas_files
 
-- Completed Snowflake training and actively engaged in the process of obtaining access and preparing to load data, with the goal of automating data ingestion into graph databases for enhanced collections process insights.
+def extract_sql_queries(sas_code):
+    # A basic pattern to find SQL queries within SAS code
+    # This pattern might need to be adjusted based on your specific SAS coding conventions
+    queries = re.findall(r'proc sql;.*?quit;', sas_code, re.DOTALL | re.IGNORECASE)
+    return queries
 
-- Received numerous '5 Keys' awards from teammates and business owners, including specific recognitions for problem-solving, support in report migration, and stepping up in a teammate's absence.
+def extract_schema_tables(sql_queries):
+    schema_tables = set()
+    for query in sql_queries:
+        # A basic pattern to find schema and table names
+        # This pattern assumes that the schema and table are separated by a dot and might need adjustment
+        matches = re.findall(r'(\w+)\.(\w+)', query)
+        schema_tables.update(matches)
+    return schema_tables
 
-- Actively participated in multiple Corporate Social Responsibility (CSR) activities, contributing to community welfare and strengthening team bonds.
+if __name__ == "__main__":
+    directory = '/svcbpa/PRD/'
+    sas_files = find_sas_files(directory)
+    
+    all_schema_tables = set()
+    for sas_file in sas_files:
+        with open(sas_file, 'r') as file:
+            sas_code = file.read()
+        sql_queries = extract_sql_queries(sas_code)
+        schema_tables = extract_schema_tables(sql_queries)
+        all_schema_tables.update(schema_tables)
 
-- Demonstrated leadership and technical skills in the AWS DeepRacer competition, leading the team to qualify in the top 10 out of 50 teams in Mumbai during the first round.
+    print("All schema and tables found:")
+    for schema, table in all_schema_tables:
+        print(f"{schema}.{table}")
+```
 
-Feel free to modify or add any additional points to better capture your achievements and contributions over the year.
+Please note that this script might need some adjustments based on your specific SAS coding conventions and the complexity of your SQL queries. The regular expressions used for extracting SQL queries and schema/table names are quite basic and might not cover all possible cases. You may need to refine them according to your needs.
+
+Additionally, this script assumes that your SAS code files have a .sas extension and that SQL queries are contained within `proc sql;` and `quit;` blocks. Adjustments may be needed if your files or SQL queries are structured differently.
