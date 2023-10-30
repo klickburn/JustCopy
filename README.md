@@ -4,13 +4,17 @@ import pandas as pd
 import hashlib
 
 def file_hash(file_path):
-    hasher = hashlib.sha256()
-    with open(file_path, 'rb') as f:
-        buf = f.read(65536)
-        while len(buf) > 0:
-            hasher.update(buf)
+    try:
+        hasher = hashlib.sha256()
+        with open(file_path, 'rb') as f:
             buf = f.read(65536)
-    return hasher.hexdigest()
+            while len(buf) > 0:
+                hasher.update(buf)
+                buf = f.read(65536)
+        return hasher.hexdigest()
+    except PermissionError:
+        print(f"Permission denied: {file_path}")
+        return None
 
 def find_sas_files(directories):
     sas_files = []
@@ -21,7 +25,7 @@ def find_sas_files(directories):
                 if file.endswith('.sas'):
                     file_path = os.path.join(root, file)
                     hash_val = file_hash(file_path)
-                    if hash_val not in processed_files:
+                    if hash_val is not None and hash_val not in processed_files:
                         processed_files.add(hash_val)
                         sas_files.append(file_path)
     return sas_files
@@ -54,12 +58,15 @@ if __name__ == "__main__":
     
     all_schema_tables = {}
     for sas_file in sas_files:
-        with open(sas_file, 'r') as file:
-            sas_code = file.read()
-        sql_queries = extract_sql_queries(sas_code)
-        schema_tables = extract_schema_tables(sql_queries)
-        for schema_table in schema_tables:
-            all_schema_tables[schema_table] = all_schema_tables.get(schema_table, 0) + 1
+        try:
+            with open(sas_file, 'r') as file:
+                sas_code = file.read()
+            sql_queries = extract_sql_queries(sas_code)
+            schema_tables = extract_schema_tables(sql_queries)
+            for schema_table in schema_tables:
+                all_schema_tables[schema_table] = all_schema_tables.get(schema_table, 0) + 1
+        except PermissionError:
+            print(f"Permission denied: {sas_file}")
 
     print(f"Total number of SAS files traversed: {len(sas_files)}")
     print("All schema and tables found with their occurrences:")
