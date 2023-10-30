@@ -1,5 +1,6 @@
 import os
 import re
+import pandas as pd
 
 def find_sas_files(directory):
     sas_files = []
@@ -16,7 +17,6 @@ def extract_sql_queries(sas_code):
 def extract_schema_tables(sql_queries):
     schema_tables = set()
     for query in sql_queries:
-        # Updated regular expression to more accurately capture schema and table names
         matches = re.findall(r'\bfrom\s+(\w+)\.(\w+)|\bjoin\s+(\w+)\.(\w+)', query, re.IGNORECASE)
         for match in matches:
             if match[0]:
@@ -24,6 +24,11 @@ def extract_schema_tables(sql_queries):
             elif match[2]:
                 schema_tables.add((match[2], match[3]))
     return schema_tables
+
+def export_to_excel(data, output_file):
+    df = pd.DataFrame(data, columns=['Schema', 'Table'])
+    df = df.drop_duplicates().sort_values(by=['Schema', 'Table']).reset_index(drop=True)
+    df.to_excel(output_file, index=False)
 
 if __name__ == "__main__":
     directory = '/svcbpa/PRD/'
@@ -40,3 +45,6 @@ if __name__ == "__main__":
     print("All schema and tables found:")
     for schema, table in all_schema_tables:
         print(f"{schema}.{table}")
+
+    export_to_excel(all_schema_tables, 'output.xlsx')
+    print("Results exported to 'output.xlsx'")
