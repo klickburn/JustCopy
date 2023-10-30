@@ -1,15 +1,3 @@
-
-Sure, I can help you create a Python script to traverse through all the subfolders in the specified location, find all SAS code files, parse them to extract SQL queries, and then extract schema and table names from those queries.
-
-The task can be broken down into the following steps:
-1. Traverse through all the subfolders in the specified location.
-2. For each file, check if it has a .sas extension.
-3. If it is a SAS file, open the file and parse the content to extract SQL queries.
-4. Parse the SQL queries to extract schema and table names.
-
-Here is a basic script to get you started:
-
-```python
 import os
 import re
 
@@ -51,8 +39,3 @@ if __name__ == "__main__":
     print("All schema and tables found:")
     for schema, table in all_schema_tables:
         print(f"{schema}.{table}")
-```
-
-Please note that this script might need some adjustments based on your specific SAS coding conventions and the complexity of your SQL queries. The regular expressions used for extracting SQL queries and schema/table names are quite basic and might not cover all possible cases. You may need to refine them according to your needs.
-
-Additionally, this script assumes that your SAS code files have a .sas extension and that SQL queries are contained within `proc sql;` and `quit;` blocks. Adjustments may be needed if your files or SQL queries are structured differently.
