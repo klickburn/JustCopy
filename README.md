@@ -1,27 +1,21 @@
-# Calculating the average call activities and communication frequencies across all accounts
+# Part 3: Overall Communication Patterns
 
-# Average Call Activities
-average_dial_attempts = communication_aggregated['dial_cnt'].mean()
-average_successful_contacts = communication_aggregated['contact_cnt'].mean()
-average_promises_to_pay = communication_aggregated['promise_cnt'].mean()
+# Most and Least Used Communication Methods
+most_used_comm_method = communication_aggregated[['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].mean().idxmax()
+least_used_comm_method = communication_aggregated[['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].mean().idxmin()
 
-# Average Communication Frequencies
-average_eletter = communication_aggregated['E-Letter'].mean()
-average_email = communication_aggregated['Email'].mean()
-average_letter = communication_aggregated['Letter'].mean()
-average_live_chat = communication_aggregated['Live Chat'].mean()
-average_text = communication_aggregated['Text'].mean()
+# Variability in Communication
+communication_variability = communication_aggregated[['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].std()
 
-# Summary of the averages
-average_summary = {
-    "Average Dial Attempts": average_dial_attempts,
-    "Average Successful Contacts": average_successful_contacts,
-    "Average Promises to Pay": average_promises_to_pay,
-    "Average E-Letter": average_eletter,
-    "Average Email": average_email,
-    "Average Letter": average_letter,
-    "Average Live Chat": average_live_chat,
-    "Average Text": average_text
+# Correlation with Call Activities
+call_activities = ['dial_cnt', 'contact_cnt', 'promise_cnt']
+correlation_with_calls = communication_aggregated[call_activities + ['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].corr().loc[call_activities]
+
+overall_communication_patterns = {
+    "Most Used Communication Method": most_used_comm_method,
+    "Least Used Communication Method": least_used_comm_method,
+    "Variability in Communication": communication_variability.to_dict(),
+    "Correlation with Call Activities": correlation_with_calls.to_dict()
 }
 
-average_summary
+overall_communication_patterns
