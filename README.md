@@ -1,21 +1,21 @@
-# Part 3: Overall Communication Patterns
+# Creating a line plot with shaded area for standard deviation
 
-# Most and Least Used Communication Methods
-most_used_comm_method = communication_aggregated[['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].mean().idxmax()
-least_used_comm_method = communication_aggregated[['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].mean().idxmin()
+plt.figure(figsize=(10, 6))
 
-# Variability in Communication
-communication_variability = communication_aggregated[['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].std()
+# Line plot for mean values
+plt.plot(communication_means.index, communication_means.values, marker='o', color='b', label='Mean')
 
-# Correlation with Call Activities
-call_activities = ['dial_cnt', 'contact_cnt', 'promise_cnt']
-correlation_with_calls = communication_aggregated[call_activities + ['E-Letter', 'Email', 'Letter', 'Live Chat', 'Text']].corr().loc[call_activities]
+# Adding shaded area for standard deviation
+plt.fill_between(communication_means.index, 
+                 communication_means.values - communication_stds.values, 
+                 communication_means.values + communication_stds.values, 
+                 color='skyblue', alpha=0.3)
 
-overall_communication_patterns = {
-    "Most Used Communication Method": most_used_comm_method,
-    "Least Used Communication Method": least_used_comm_method,
-    "Variability in Communication": communication_variability.to_dict(),
-    "Correlation with Call Activities": correlation_with_calls.to_dict()
-}
+plt.title('Mean and Standard Deviation of Communication Methods')
+plt.xlabel('Communication Method')
+plt.ylabel('Average Count per Account')
+plt.legend()
+plt.grid(axis='y', alpha=0.75)
 
-overall_communication_patterns
+# Show the plot
+plt.show()
