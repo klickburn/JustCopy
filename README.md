@@ -1,13 +1,19 @@
-import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Plotting the distribution of Duration_to_Chargeoff
-plt.figure(figsize=(10, 6))
-plt.hist(chargeoffs_df['Duration_to_Chargeoff'], bins=range(1, 13), edgecolor='black', color='skyblue')
-plt.title('Distribution of Duration from Delinquency to Charge-off')
+# Setting up the matplotlib figure
+plt.figure(figsize=(14, 6))
+
+# Creating subplots
+plt.subplot(1, 2, 1)
+sns.boxplot(x=chargeoffs_df['Duration_to_Chargeoff'], color='lightgreen')
+plt.title('Box Plot of Duration from Delinquency to Charge-off')
 plt.xlabel('Duration in Days')
-plt.ylabel('Frequency')
-plt.xticks(range(1, 12))
-plt.grid(axis='y', alpha=0.75)
 
-# Show the plot
+plt.subplot(1, 2, 2)
+sns.kdeplot(chargeoffs_df['Duration_to_Chargeoff'], shade=True, color='lightblue')
+plt.title('Density Plot of Duration from Delinquency to Charge-off')
+plt.xlabel('Duration in Days')
+
+# Show the plots
+plt.tight_layout()
 plt.show()
