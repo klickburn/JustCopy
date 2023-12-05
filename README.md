@@ -1,8 +1,13 @@
+import matplotlib.pyplot as plt
 
-# Recalculating the duration between Dlq_Date and CHRGF_CPLT_DT in days for the renamed dataframe
-chargeoffs_df['Duration_to_Chargeoff'] = (chargeoffs_df['CHRGF_CPLT_DT'] - chargeoffs_df['Dlq_Date']).dt.days
+# Plotting the distribution of Duration_to_Chargeoff
+plt.figure(figsize=(10, 6))
+plt.hist(chargeoffs_df['Duration_to_Chargeoff'], bins=range(1, 13), edgecolor='black', color='skyblue')
+plt.title('Distribution of Duration from Delinquency to Charge-off')
+plt.xlabel('Duration in Days')
+plt.ylabel('Frequency')
+plt.xticks(range(1, 12))
+plt.grid(axis='y', alpha=0.75)
 
-# Summary statistics of the duration
-duration_stats_renamed = chargeoffs_df['Duration_to_Chargeoff'].describe()
-
-duration_stats_renamed
+# Show the plot
+plt.show()
