@@ -1,21 +1,27 @@
-# Adjusting the approach for Insight 2
+# Calculating the average call activities and communication frequencies across all accounts
 
-# First, merge communication data (comms_df) with charge-off data (chargeoffs_df)
-merged_comm_chargeoff = pd.merge(comms_df, chargeoffs_df, left_on='acct_ref_nb', right_on='ACCT_REF_NB')
+# Average Call Activities
+average_dial_attempts = communication_aggregated['dial_cnt'].mean()
+average_successful_contacts = communication_aggregated['contact_cnt'].mean()
+average_promises_to_pay = communication_aggregated['promise_cnt'].mean()
 
-# Filtering to include only communications before the charge-off date
-merged_comm_chargeoff_filtered = merged_comm_chargeoff[merged_comm_chargeoff['comm_dt'] <= merged_comm_chargeoff['CHRGF_CPLT_DT']]
+# Average Communication Frequencies
+average_eletter = communication_aggregated['E-Letter'].mean()
+average_email = communication_aggregated['Email'].mean()
+average_letter = communication_aggregated['Letter'].mean()
+average_live_chat = communication_aggregated['Live Chat'].mean()
+average_text = communication_aggregated['Text'].mean()
 
-# Counting the types of communication for each account
-communication_counts = merged_comm_chargeoff_filtered.groupby(['acct_ref_nb', 'COMMUNICATION_TYPE']).size().unstack(fill_value=0)
+# Summary of the averages
+average_summary = {
+    "Average Dial Attempts": average_dial_attempts,
+    "Average Successful Contacts": average_successful_contacts,
+    "Average Promises to Pay": average_promises_to_pay,
+    "Average E-Letter": average_eletter,
+    "Average Email": average_email,
+    "Average Letter": average_letter,
+    "Average Live Chat": average_live_chat,
+    "Average Text": average_text
+}
 
-# Now, merging with calls data (calls_df)
-merged_with_calls = pd.merge(calls_df, communication_counts, left_on='ACCT_REF_NB', right_on='acct_ref_nb', how='left')
-
-# Filling NaN values with 0, as no communication means zero counts
-merged_with_calls_filled = merged_with_calls.fillna(0)
-
-# Aggregating the communication data
-communication_aggregated = merged_with_calls_filled.groupby('ACCT_REF_NB').sum()
-
-communication_aggregated.head()
+average_summary
