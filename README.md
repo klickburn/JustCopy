@@ -1,6 +1,8 @@
-# Modifying the analysis to display the charged-off amount in millions
 
-# Converting the total charged-off amount to millions
-segment_grouped['Total Charged-Off Amount'] = segment_grouped['Total Charged-Off Amount'] / 1e6  # Dividing by 1 million
+# Merging payment data with charge-offs data to include segment information
+merged_payment_segment = pd.merge(payment_df, chargeoffs_df[['ACCT_REF_NB', 'Segment']], on='ACCT_REF_NB')
 
-segment_grouped
+# Grouping by Segment and calculating total payments received
+total_payments_by_segment = merged_payment_segment.groupby('Segment')['payment_amt'].sum()
+
+total_payments_by_segment
