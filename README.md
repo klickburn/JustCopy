@@ -1,16 +1,17 @@
-import matplotlib.pyplot as plt
+# Counting the number of accounts in each program type
 
-# Removing 'Online' payment type from the data
-total_payments_without_online = total_payments_by_type_thousands.drop('Online')
+accounts_per_program = pmt_program_df['program_type'].value_counts()
 
-# Creating a bar plot for the total payments in thousands for each payment type (excluding 'Online')
-plt.figure(figsize=(8, 6))
-total_payments_without_online.plot(kind='bar', color='teal')
-plt.title('Total Payments by Payment Type (in Thousands)')
-plt.xlabel('Payment Type')
-plt.ylabel('Total Payments (in Thousands)')
-plt.xticks(rotation=45)
-plt.grid(axis='y', alpha=0.75)
+accounts_per_program
 
-# Show the plot
-plt.show()
+
+# Merging payment data with program data on account number
+merged_payment_program = pd.merge(payment_df, pmt_program_df, on='ACCT_REF_NB')
+
+# Filtering to include only payments made after enrolling in a program
+merged_payment_program_filtered = merged_payment_program[merged_payment_program['payment_date'] >= merged_payment_program['pgm_dt']]
+
+# Grouping by program type and calculating total payments received
+total_payments_by_program = merged_payment_program_filtered.groupby('program_type')['payment_amt'].sum()
+
+total_payments_by_program
