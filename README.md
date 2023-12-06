@@ -1,9 +1,6 @@
-# Grouping accounts according to Segment and finding total charged-off amount and total number of accounts for each segment
+# Modifying the analysis to display the charged-off amount in millions
 
-# Grouping by Segment
-segment_grouped = chargeoffs_df.groupby('Segment').agg({'CHRGF_BAL_AM': 'sum', 'ACCT_REF_NB': 'count'})
-
-# Renaming columns for clarity
-segment_grouped = segment_grouped.rename(columns={'CHRGF_BAL_AM': 'Total Charged-Off Amount', 'ACCT_REF_NB': 'Total Accounts'})
+# Converting the total charged-off amount to millions
+segment_grouped['Total Charged-Off Amount'] = segment_grouped['Total Charged-Off Amount'] / 1e6  # Dividing by 1 million
 
 segment_grouped
