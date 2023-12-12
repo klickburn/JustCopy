@@ -1,11 +1,12 @@
-# Merging payment_df with chargeoffs_df to get the delinquency bucket information
-merged_payments_chargeoffs = pd.merge(payment_df, chargeoffs_df[['ACCT_REF_NB', 'Dlq_Date']], on='ACCT_REF_NB')
+# Counting how many accounts made at least one payment and how many did not make any payment
 
-# Calculating the bucket for each payment based on the delinquency date
-merged_payments_chargeoffs['days_in_delinquency'] = (merged_payments_chargeoffs['payment_date'] - merged_payments_chargeoffs['Dlq_Date']).dt.days
-merged_payments_chargeoffs['bucket'] = (merged_payments_chargeoffs['days_in_delinquency'] // 30) + 1  # Bucket 1: 0-30 days, etc.
+# Total number of unique accounts in the dataset
+total_accounts = payment_df['ACCT_REF_NB'].nunique()
 
-# Counting the unique accounts making payments in each bucket
-unique_accounts_per_payment_bucket = merged_payments_chargeoffs.groupby('bucket')['ACCT_REF_NB'].nunique()
+# Number of accounts that made at least one payment
+accounts_made_payment = payment_df['ACCT_REF_NB'].nunique()
 
-unique_accounts_per_payment_bucket
+# Number of accounts that did not make any payment
+accounts_did_not_pay = total_accounts - accounts_made_payment
+
+accounts_made_payment, accounts_did_not_pay
