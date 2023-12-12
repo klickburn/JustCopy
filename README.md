@@ -1,11 +1,6 @@
+# Calculating the number of accounts enrolled in each type of payment program per bucket
 
-# Calculating the bucket for each account at the time of enrolling in a payment program
-# Each bucket represents a 30-day period of delinquency
-merged_df = pd.merge(chargeoffs_df, pmt_program_df, on='ACCT_REF_NB')
-merged_df['days_in_delinquency'] = (merged_df['pgm_dt'] - merged_df['Dlq_Date']).dt.days
-merged_df['bucket'] = (merged_df['days_in_delinquency'] // 30) + 1  # Bucket 1: 0-30 days, Bucket 2: 31-60 days, etc.
+# Grouping by bucket and program type, then counting the number of accounts
+enrollments_per_bucket_program = merged_df.groupby(['bucket', 'program_type']).size().unstack(fill_value=0)
 
-# Determining in which bucket each account enrolled in a payment program
-enrollment_buckets = merged_df.groupby('ACCT_REF_NB')['bucket'].first()
-
-enrollment_buckets.head()
+enrollments_per_bucket_program
