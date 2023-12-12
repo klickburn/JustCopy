@@ -1,18 +1,11 @@
-# Correct approach to calculate the average number of each communication type sent out in each bucket
+# Merging payment_df with chargeoffs_df to get the delinquency bucket information
+merged_payments_chargeoffs = pd.merge(payment_df, chargeoffs_df[['ACCT_REF_NB', 'Dlq_Date']], on='ACCT_REF_NB')
 
-# Grouping by bucket and communication type, then counting the occurrences
-grouped_comms = merged_comms_chargeoffs.groupby(['bucket', 'COMMUNICATION_TYPE']).size()
+# Calculating the bucket for each payment based on the delinquency date
+merged_payments_chargeoffs['days_in_delinquency'] = (merged_payments_chargeoffs['payment_date'] - merged_payments_chargeoffs['Dlq_Date']).dt.days
+merged_payments_chargeoffs['bucket'] = (merged_payments_chargeoffs['days_in_delinquency'] // 30) + 1  # Bucket 1: 0-30 days, etc.
 
-# Calculating the average for each communication type in each bucket
-# First, unstack to separate communication types into different columns
-grouped_comms_unstacked = grouped_comms.unstack('COMMUNICATION_TYPE', fill_value=0)
-# First, we will calculate the total unique accounts that received each communication type in each bucket
-average_comms_per_type_per_bucket = grouped_comms_unstacked.mean()
+# Counting the unique accounts making payments in each bucket
+unique_accounts_per_payment_bucket = merged_payments_chargeoffs.groupby('bucket')['ACCT_REF_NB'].nunique()
 
-# Counting the unique accounts for each communication type in each bucket
-unique_accounts_per_comms_type = merged_comms_chargeoffs.groupby(['bucket', 'COMMUNICATION_TYPE'])['acct_ref_nb'].nunique().unstack(fill_value=0)
-
-# Now, dividing the average_comms_per_bucket_and_type_df by unique_accounts_per_comms_type to get the average per account
-average_comms_per_account = average_comms_per_type_per_bucket.div(unique_accounts_per_comms_type)
-
-average_comms_per_account
+unique_accounts_per_payment_bucket
