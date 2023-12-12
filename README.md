@@ -1,4 +1,5 @@
 # First, we will calculate the total unique accounts that received each communication type in each bucket
+average_comms_per_type_per_bucket = grouped_comms_unstacked.mean()
 
 # Counting the unique accounts for each communication type in each bucket
 unique_accounts_per_comms_type = merged_comms_chargeoffs.groupby(['bucket', 'COMMUNICATION_TYPE'])['acct_ref_nb'].nunique().unstack(fill_value=0)
