@@ -1,14 +1,13 @@
-# Filtering the chargeoffs_df to include only accounts with a balance less than 100,000
+# Calculating the number of accounts and total charge-off amount for accounts with balances below and above 5000
 
-filtered_chargeoffs_df = chargeoffs_df[chargeoffs_df['CHRGF_BAL_AM'] < 100000]
+# Accounts with charge-off balance below 5000
+below_5000 = chargeoffs_df[chargeoffs_df['CHRGF_BAL_AM'] < 5000]
+num_accounts_below_5000 = below_5000['ACCT_REF_NB'].nunique()
+total_amount_below_5000 = below_5000['CHRGF_BAL_AM'].sum()
 
-# Creating a histogram to visualize the distribution of charge-off balance amounts for these accounts
-plt.figure(figsize=(10, 6))
-plt.hist(filtered_chargeoffs_df['CHRGF_BAL_AM'], bins=20, color='skyblue', edgecolor='black')
-plt.title('Distribution of Charge-Off Balance Amounts (Under 100,000)')
-plt.xlabel('Charge-Off Balance Amount')
-plt.ylabel('Frequency')
-plt.grid(axis='y', alpha=0.75)
+# Accounts with charge-off balance above 5000
+above_5000 = chargeoffs_df[chargeoffs_df['CHRGF_BAL_AM'] >= 5000]
+num_accounts_above_5000 = above_5000['ACCT_REF_NB'].nunique()
+total_amount_above_5000 = above_5000['CHRGF_BAL_AM'].sum()
 
-# Show the plot
-plt.show()
+num_accounts_below_5000, total_amount_below_5000, num_accounts_above_5000, total_amount_above_5000
