@@ -1,3 +1,11 @@
+# Correct approach to calculate the average number of each communication type sent out in each bucket
+
+# Grouping by bucket and communication type, then counting the occurrences
+grouped_comms = merged_comms_chargeoffs.groupby(['bucket', 'COMMUNICATION_TYPE']).size()
+
+# Calculating the average for each communication type in each bucket
+# First, unstack to separate communication types into different columns
+grouped_comms_unstacked = grouped_comms.unstack('COMMUNICATION_TYPE', fill_value=0)
 # First, we will calculate the total unique accounts that received each communication type in each bucket
 average_comms_per_type_per_bucket = grouped_comms_unstacked.mean()
 
