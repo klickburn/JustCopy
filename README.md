@@ -1,4 +1,8 @@
-# Adding a total column to the dataframe to show the total number of accounts enrolled in each bucket
+# Adding a 'bucket' column to comms_df based on the delinquency date from chargeoffs_df
 
-enrollments_per_bucket_program['Total'] = enrollments_per_bucket_program.sum(axis=1)
-enrollments_per_bucket_program
+# First, we need to merge comms_df with chargeoffs_df to get the delinquency date for each account
+merged_comms_chargeoffs = pd.merge(comms_df, chargeoffs_df[['ACCT_REF_NB', 'Dlq_Date']], left_on='acct_ref_nb', right_on='ACCT_REF_NB')
+
+# Calculating the bucket for each communication based on the delinquency date
+merged_comms_chargeoffs['days_in_delinquency'] = (merged_comms_chargeoffs['comm_dt'] - merged_comms_chargeoffs['Dlq_Date']).dt.days
+merged_comms_chargeoffs['bucket'] = (merged_comms_chargeoffs['days_in_delinquency'] // 30) + 1  # Bucket 1: 0-30 days, etc.
