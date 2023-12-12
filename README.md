@@ -1,15 +1,17 @@
-merged_payments = pd.merge(payment_df, chargeoffs_df[['ACCT_REF_NB', 'Dlq_Date']], on='ACCT_REF_NB')
+calls_details_df['channel'] = 'Call'  # Adding a 'channel' column for uniformity
 
-# Calculating the bucket for each payment based on the delinquency date
-merged_payments['days_in_delinquency'] = (merged_payments['payment_date'] - merged_payments['Dlq_Date']).dt.days
-merged_payments['bucket'] = (merged_payments['days_in_delinquency'] // 30) + 1  # Bucket 1: 0-30 days, etc.
+comms_df['channel'] = comms_df['COMMUNICATION_TYPE']  # Adding a 'channel' column
 
-# Updating payment_df with the new 'bucket' information
-payment_df['bucket'] = merged_payments['bucket']
+# Combining calls_details_df with comms_df
+combined_contacts_df = pd.concat([
+    calls_details_df.rename(columns={'calldate': 'contact_date'}),
+    comms_df.rename(columns={'comm_dt': 'contact_date'})
+])
 
-payment_df.head()
+# Sorting by account and contact date to find the first contact
+combined_contacts_df_sorted = combined_contacts_df.sort_values(by=['acct_ref_nb', 'contact_date'])
 
-# Calculating the total payments received in each bucket
+# Getting the first contact channel for each account
+first_contact_channel = combined_contacts_df_sorted.groupby('acct_ref_nb').first()['channel']
 
-total_payments_per_bucket = payment_df.groupby('bucket')['payment_amt'].sum()
-total_payments_per_bucket
+first_contact_channel.head()
