@@ -1,8 +1,9 @@
-# Adding a 'bucket' column to comms_df based on the delinquency date from chargeoffs_df
+# Correcting the calculation approach to get the average number of each communication type sent out in each bucket
 
-# First, we need to merge comms_df with chargeoffs_df to get the delinquency date for each account
-merged_comms_chargeoffs = pd.merge(comms_df, chargeoffs_df[['ACCT_REF_NB', 'Dlq_Date']], left_on='acct_ref_nb', right_on='ACCT_REF_NB')
+# Grouping by bucket and communication type, then counting the occurrences
+grouped_comms_per_bucket = merged_comms_chargeoffs.groupby(['bucket', 'COMMUNICATION_TYPE']).size()
 
-# Calculating the bucket for each communication based on the delinquency date
-merged_comms_chargeoffs['days_in_delinquency'] = (merged_comms_chargeoffs['comm_dt'] - merged_comms_chargeoffs['Dlq_Date']).dt.days
-merged_comms_chargeoffs['bucket'] = (merged_comms_chargeoffs['days_in_delinquency'] // 30) + 1  # Bucket 1: 0-30 days, etc.
+# Calculating the average for each communication type in each bucket
+average_comms_per_bucket_and_type_df = grouped_comms_per_bucket.unstack(fill_value=0)
+
+average_comms_per_bucket_and_type_df
