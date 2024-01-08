@@ -1,36 +1,24 @@
-import pandas as pd
-import re
+from collections import Counter
 
-# Function to remove punctuation and special characters
-def remove_punctuation(text):
-    return re.sub(r'[^\w\s]', '', text)
+# Function to create a Bag of Words model
+def create_bag_of_words(text_list):
+    # Join all the text items into a single string
+    all_text = ' '.join(text_list)
+    # Tokenize the text
+    tokens = all_text.split()
+    # Create a frequency distribution
+    frequency_dist = Counter(tokens)
+    return frequency_dist
 
-# Basic manual stop words list (you can expand this list based on your observations)
-stop_words = set(["the", "and", "is", "in", "at", "which", "on", "for", "with", "a", "an", "to", "of"])
+# Applying Bag of Words model to 'Root_Cause_Processed' and 'Resolution_Detail_Processed'
+root_cause_bow = create_bag_of_words(df['Root_Cause_Processed'])
+resolution_detail_bow = create_bag_of_words(df['Resolution_Detail_Processed'])
 
-# Function for basic text preprocessing
-def preprocess_text(text):
-    # Convert text to lowercase
-    text = text.lower()
-    # Remove punctuation
-    text = remove_punctuation(text)
-    # Tokenize text by splitting on whitespace
-    tokens = text.split()
-    # Remove stop words
-    tokens = [word for word in tokens if word not in stop_words]
-    return ' '.join(tokens)
+# Displaying the most common words in 'Root_Cause'
+print("Most common words in Root Cause:")
+print(root_cause_bow.most_common(10))
 
-# Example DataFrame
-data = {
-    'CCOMS_ID': [1, 2, 3],
-    'Root_Cause': ["Password reset issue", "Server downtime", "Login failure"],
-    'Resolution_Detail': ["Reset by admin", "Rebooted server", "Checked network"]
-}
-df = pd.DataFrame(data)
+# Displaying the most common words in 'Resolution_Detail'
+print("\nMost common words in Resolution Detail:")
+print(resolution_detail_bow.most_common(10))
 
-# Applying preprocessing to DataFrame
-df['Root_Cause_Processed'] = df['Root_Cause'].apply(preprocess_text)
-df['Resolution_Detail_Processed'] = df['Resolution_Detail'].apply(preprocess_text)
-
-# Display the processed DataFrame
-print(df)
