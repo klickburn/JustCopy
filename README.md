@@ -1,13 +1,32 @@
-# Calculating the number of accounts and total charge-off amount for accounts with balances below and above 5000
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+import re
 
-# Accounts with charge-off balance below 5000
-below_5000 = chargeoffs_df[chargeoffs_df['CHRGF_BAL_AM'] < 5000]
-num_accounts_below_5000 = below_5000['ACCT_REF_NB'].nunique()
-total_amount_below_5000 = below_5000['CHRGF_BAL_AM'].sum()
+# Download necessary NLTK data
+nltk.download('punkt')
+nltk.download('stopwords')
 
-# Accounts with charge-off balance above 5000
-above_5000 = chargeoffs_df[chargeoffs_df['CHRGF_BAL_AM'] >= 5000]
-num_accounts_above_5000 = above_5000['ACCT_REF_NB'].nunique()
-total_amount_above_5000 = above_5000['CHRGF_BAL_AM'].sum()
+# Initialize the Porter Stemmer
+stemmer = PorterStemmer()
 
-num_accounts_below_5000, total_amount_below_5000, num_accounts_above_5000, total_amount_above_5000
+# Function for text preprocessing
+def preprocess_text(text):
+    # Convert text to lowercase
+    text = text.lower()
+    # Remove punctuation and special characters
+    text = re.sub(r'[^\w\s]', '', text)
+    # Tokenize text
+    tokens = word_tokenize(text)
+    # Remove stop words and apply stemming
+    tokens = [stemmer.stem(word) for word in tokens if word not in stopwords.words('english')]
+    return ' '.join(tokens)
+
+# Example usage
+df['Root_Cause_Processed'] = df['Root_Cause'].apply(preprocess_text)
+df['Resolution_Detail_Processed'] = df['Resolution_Detail'].apply(preprocess_text)
+
+# Displaying the processed DataFrame
+print(df[['Root_Cause', 'Root_Cause_Processed', 'Resolution_Detail', 'Resolution_Detail_Processed']])
