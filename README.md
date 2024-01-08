@@ -5,9 +5,7 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import re
 
-# Download necessary NLTK data
-nltk.download('punkt')
-nltk.download('stopwords')
+# No need to manually download 'punkt' and 'stopwords' if nltk_data is installed
 
 # Initialize the Porter Stemmer
 stemmer = PorterStemmer()
