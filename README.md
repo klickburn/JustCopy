@@ -1,30 +1,36 @@
 import pandas as pd
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
 import re
 
-# No need to manually download 'punkt' and 'stopwords' if nltk_data is installed
+# Function to remove punctuation and special characters
+def remove_punctuation(text):
+    return re.sub(r'[^\w\s]', '', text)
 
-# Initialize the Porter Stemmer
-stemmer = PorterStemmer()
+# Basic manual stop words list (you can expand this list based on your observations)
+stop_words = set(["the", "and", "is", "in", "at", "which", "on", "for", "with", "a", "an", "to", "of"])
 
-# Function for text preprocessing
+# Function for basic text preprocessing
 def preprocess_text(text):
     # Convert text to lowercase
     text = text.lower()
-    # Remove punctuation and special characters
-    text = re.sub(r'[^\w\s]', '', text)
-    # Tokenize text
-    tokens = word_tokenize(text)
-    # Remove stop words and apply stemming
-    tokens = [stemmer.stem(word) for word in tokens if word not in stopwords.words('english')]
+    # Remove punctuation
+    text = remove_punctuation(text)
+    # Tokenize text by splitting on whitespace
+    tokens = text.split()
+    # Remove stop words
+    tokens = [word for word in tokens if word not in stop_words]
     return ' '.join(tokens)
 
-# Example usage
+# Example DataFrame
+data = {
+    'CCOMS_ID': [1, 2, 3],
+    'Root_Cause': ["Password reset issue", "Server downtime", "Login failure"],
+    'Resolution_Detail': ["Reset by admin", "Rebooted server", "Checked network"]
+}
+df = pd.DataFrame(data)
+
+# Applying preprocessing to DataFrame
 df['Root_Cause_Processed'] = df['Root_Cause'].apply(preprocess_text)
 df['Resolution_Detail_Processed'] = df['Resolution_Detail'].apply(preprocess_text)
 
-# Displaying the processed DataFrame
-print(df[['Root_Cause', 'Root_Cause_Processed', 'Resolution_Detail', 'Resolution_Detail_Processed']])
+# Display the processed DataFrame
+print(df)
