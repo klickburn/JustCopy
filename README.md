@@ -1,38 +1,28 @@
-def count_segment_changes(current_df, next_df):
-    """
-    Count the number of accounts for each segment that changed their segment in the next month.
-
-    Args:
-    current_df (pd.DataFrame): The dataframe of the current month.
-    next_df (pd.DataFrame): The dataframe of the next month.
-
-    Returns:
-    dict: A dictionary with the count of segment changes for each segment.
-    """
+# Function to count detailed segment transitions between months
+def count_detailed_segment_transitions(current_df, next_df):
     # Merge the two dataframes on 'acct_ref_nb' to find common accounts
     merged_df = current_df[['acct_ref_nb', 'segment']].merge(next_df[['acct_ref_nb', 'segment']], on='acct_ref_nb', suffixes=('_current', '_next'))
 
-    # Initialize a dictionary to count changes for each segment
-    segment_changes = {segment: 0 for segment in current_df['segment'].unique()}
+    # Find all unique segments in current and next dataframes
+    unique_segments = set(current_df['segment'].unique()).union(set(next_df['segment'].unique()))
 
-    # Count changes for each segment
-    for segment in segment_changes:
-        segment_changes[segment] = merged_df[(merged_df['segment_current'] == segment) & (merged_df['segment_next'] != segment)].shape[0]
+    # Initialize a dictionary to count transitions for each segment pair
+    segment_transitions = {(seg_current, seg_next): 0 for seg_current in unique_segments for seg_next in unique_segments if seg_current != seg_next}
 
-    return segment_changes
+    # Count transitions for each segment pair
+    for seg_current, seg_next in segment_transitions:
+        segment_transitions[(seg_current, seg_next)] = merged_df[(merged_df['segment_current'] == seg_current) & (merged_df['segment_next'] == seg_next)].shape[0]
 
-# Example monthly dataframes: jan_df, feb_df, ..., dec_df
+    return segment_transitions
 
-# Dictionary to store the segment changes for each month
-monthly_segment_changes = {}
+# Dictionary to store detailed segment transitions for each month
+detailed_monthly_segment_transitions = {}
 
-# List of dataframes for each month
-monthly_dfs = [jan_df, feb_df, mar_df, apr_df, may_df, jun_df, jul_df, aug_df, sep_df, oct_df, nov_df, dec_df]
-
-# Loop through the dataframes and calculate the segment changes
+# Loop through the dataframes and calculate the detailed segment transitions
 for i in range(len(monthly_dfs) - 1):
-    month_name = monthly_dfs[i].columns.name  # Assuming the dataframe has a name attribute set to the month name
+    current_month_name = monthly_dfs[i].columns.name
     next_month_name = monthly_dfs[i + 1].columns.name
-    monthly_segment_changes[f"{month_name}_to_{next_month_name}"] = count_segment_changes(monthly_dfs[i], monthly_dfs[i + 1])
+    detailed_monthly_segment_transitions[f"{current_month_name}_to_{next_month_name}"] = count_detailed_segment_transitions(monthly_dfs[i], monthly_dfs[i + 1])
 
-monthly_segment_changes
+detailed_monthly_segment_transitions
+
