@@ -1,14 +1,4 @@
-# Function to count the total population in each bucket for each month
-def count_population_in_buckets(df):
-    return df['bucket'].value_counts().to_dict()
-
-# Dictionary to store the total population in each bucket for each month
-population_in_buckets_each_month = {}
-
-# Loop through the dataframes and calculate the population in buckets
-for df in monthly_dfs:
-    month_name = df.columns.name
-    population_in_buckets_each_month[month_name] = count_population_in_buckets(df)
-
-population_in_buckets_each_month
-
+# Calculate the percentage of accounts in each segment in jan_df
+segment_counts = jan_df['segment'].value_counts(normalize=True) * 100
+segment_percentages = segment_counts.to_dict()
+segment_percentages
