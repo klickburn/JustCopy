@@ -1,15 +1,22 @@
-# First, identify accounts that were in bucket 1 in January (jan_df) and are not present in February (feb_df)
-jan_bucket_1 = jan_df[jan_df['bucket'] == 1]
-missing_in_feb = jan_bucket_1[~jan_bucket_1['acct_ref_nb'].isin(feb_df['acct_ref_nb'])]
+def calculate_specific_roll_rates(df_current, df_next):
+    # Identify accounts that are present in both months
+    common_accounts = df_current[['acct_ref_nb', 'bucket']].merge(df_next[['acct_ref_nb', 'bucket']], on='acct_ref_nb', suffixes=('_current', '_next'))
 
-# Calculate the number of such accounts in each segment
-missing_counts_per_segment = missing_in_feb['segment'].value_counts()
+    # Calculate specific roll rates (accounts that moved to the next higher bucket)
+    specific_rolled = common_accounts[common_accounts['bucket_next'] == common_accounts['bucket_current'] + 1]
+    specific_roll_counts = specific_rolled['bucket_current'].value_counts()
 
-# Calculate the total number of accounts in each segment in January that were in bucket 1
-total_in_bucket_1_per_segment = jan_bucket_1['segment'].value_counts()
+    # Calculate the total number of accounts in each bucket for the current month
+    bucket_counts_current = df_current['bucket'].value_counts()
 
-# Calculate the percentage of accounts in each segment that were in bucket 1 in January and are not present in February
-percentage_missing_in_feb = (missing_counts_per_segment / total_in_bucket_1_per_segment) * 100
-percentage_missing_in_feb_dict = percentage_missing_in_feb.fillna(0).to_dict()
-percentage_missing_in_feb_dict
+    # Calculate roll rates as a percentage
+    specific_roll_rates = (specific_roll_counts / bucket_counts_current).fillna(0) * 100
+
+    return specific_roll_rates.to_dict()
+
+# Example calculation for January to February
+jan_to_feb_specific_roll_rates = calculate_specific_roll_rates(jan_df, feb_df)
+
+jan_to_feb_specific_roll_rates
+
 
