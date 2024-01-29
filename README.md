@@ -1,26 +1,31 @@
-def calculate_acct_balance_move_ahead_percentage(current_df, next_df):
-    # Merge the two dataframes on 'acct_ref_nb' to find common accounts
-    merged_df = current_df[['acct_ref_nb', 'bucket', 'acct_balance']].merge(
-        next_df[['acct_ref_nb', 'bucket']], on='acct_ref_nb', suffixes=('_current', '_next'))
+import gensim
+from gensim import corpora
+from gensim.models.ldamodel import LdaModel
 
-    # Filter for accounts that moved to a different bucket
-    moved_accounts = merged_df[merged_df['bucket_current'] != merged_df['bucket_next']]
+# Function to create a term dictionary and corpus, then apply LDA model
+def perform_lda(text_data):
+    # Create a term dictionary of our corpus, where every unique term is assigned an index
+    dictionary = corpora.Dictionary(text_data)
 
-    # Sum of account balances that moved to a different bucket
-    moved_balances = moved_accounts.groupby('bucket_current')['acct_balance'].sum()
+    # Convert list of documents (corpus) into Document Term Matrix using the dictionary
+    doc_term_matrix = [dictionary.doc2bow(doc) for doc in text_data]
 
-    # Total account balances in each bucket for the current month
-    total_balances = current_df.groupby('bucket')['acct_balance'].sum()
+    # Create the LDA model
+    lda_model = LdaModel(doc_term_matrix, num_topics=3, id2word=dictionary, passes=15, random_state=42)
 
-    # Calculate the move ahead percentages
-    move_ahead_percentage = (moved_balances / total_balances) * 100
+    return lda_model, dictionary
 
-    return move_ahead_percentage.fillna(0).to_dict()
+# Applying LDA to each column
+for column in ['Issue Description', 'Root Cause Detail', 'Resolution Detail']:
+    print(f"\nTopics in {column}:")
 
-# Example usage
-# Assuming monthly_dfs is a list of dataframes for each month
-acct_balance_move_ahead_percentages = {}
-for i in range(len(monthly_dfs) - 1):
-    current_month_name = monthly_dfs[i].columns.name
-    next_month_name = monthly_dfs[i + 1].columns.name
-    acct_balance_move_ahead_percentages[f"{current_month_name}_to_{next_month_name}"] = calculate_acct_balance_move_ahead_percentage(monthly_dfs[i], monthly_dfs[i +
+    # Splitting the text data into words
+    text_data = [text.split() for text in ccoms[column]]
+
+    # Perform LDA
+    lda_model, dictionary = perform_lda(text_data)
+
+    # Print the topics
+    for idx, topic in lda_model.show_topics(formatted=False, num_words= 5):
+        print("Topic: {} \nWords: {}".format(idx, [w for w, _ in topic]))
+
