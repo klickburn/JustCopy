@@ -1,3 +1,5 @@
-ccoms['Issue Description'] = ccoms['Issue Description'].astype(str)
-ccoms['Root Cause Detail'] = ccoms['Root Cause Detail'].astype(str)
-ccoms['Resolution Detail'] = ccoms['Resolution Detail'].astype(str)
+import pkg_resources
+installed_packages = pkg_resources.working_set
+installed_packages_list = sorted(["%s==%s" % (i.key, i.version) for i in installed_packages])
+for package in installed_packages_list:
+    print(package)
