@@ -1,5 +1,8 @@
-import pkg_resources
-installed_packages = pkg_resources.working_set
-installed_packages_list = sorted(["%s==%s" % (i.key, i.version) for i in installed_packages])
-for package in installed_packages_list:
-    print(package)
+
+SELECT
+    MAX(LEN(CAST(your_column AS VARCHAR) - CHARINDEX('.', CAST(your_column AS VARCHAR)) - 1)) AS max_scale,
+    MAX(LEN(REPLACE(CAST(your_column AS VARCHAR), '.', ''))) AS max_precision
+FROM
+    your_table
+WHERE
+    CHARINDEX('.', CAST(your_column AS VARCHAR)) > 0
