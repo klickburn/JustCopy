@@ -1,91 +1,34 @@
-import static org.junit.jupiter.api.Assertions.*;
+void testGetCustomOptionsEntry() {
+    DplConfigService dplConfigService = DplConfigService.getInstance();
+    DatasetFlowOptionsModel df = new DatasetFlowOptionsModel();
+    
+    // Mocking the necessary parts of df to simulate a realistic scenario
+    InputEntityDetailsModel inputEntityDetails = new InputEntityDetailsModel();
+    DatasetFlowOptions options = new DatasetFlowOptions();
+    FileDatasetFlowOption fileOptions = new FileDatasetFlowOption();
+    HadoopDatasetFlowOption hadoopOptions = new HadoopDatasetFlowOption();
+    
+    // Set up custom options for file and Hadoop
+    Map<String, String> customOptions = new HashMap<>();
+    customOptions.put("glueDatabaseName", "sample_database");
+    customOptions.put("glueTableName", "sample_table");
 
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
-class DplConfigServiceTest {
-
-    private DplConfigService dplConfigService = new DplConfigService();
-
-    @Test
-    void testGetCustomOptionsEntry_ValidData() {
-        // Arrange
-        DatasetFlowOptionsModel df = new DatasetFlowOptionsModel();
-        InputEntityDetailsModel ied = new InputEntityDetailsModel();
-        DatasetFlowOptions datasetFlowOptions = new DatasetFlowOptions();
-        FileDatasetFlowOption fileOptions = new FileDatasetFlowOption();
-
-        Map<String, String> customOptions = new HashMap<>();
-        customOptions.put("glueDatabaseName", "sampleDatabase");
-        customOptions.put("glueTableName", "sampleTable");
-
-        fileOptions.setCustomOptions(customOptions);
-        datasetFlowOptions.setFileOptions(fileOptions);
-        ied.setDatasetFlowOptions(datasetFlowOptions);
-        df.setInputDataSets(Collections.singletonList(ied));
-
-        // Act
-        Optional<Map.Entry<String, String>> result = dplConfigService.getCustomOptionsEntry(df);
-
-        // Assert
-        assertTrue(result.isPresent(), "Custom options entry should be present");
-        assertEquals("sampleDatabase", result.get().getKey(), "Database name should match");
-        assertEquals("sampleTable", result.get().getValue(), "Table name should match");
-    }
-
-    @Test
-    void testGetCustomOptionsEntry_NullInput() {
-        // Act
-        Optional<Map.Entry<String, String>> result = dplConfigService.getCustomOptionsEntry(null);
-
-        // Assert
-        assertFalse(result.isPresent(), "Result should be empty when input is null");
-    }
-
-    @Test
-    void testGetCustomOptionsEntry_EmptyInputDataSets() {
-        // Arrange
-        DatasetFlowOptionsModel df = new DatasetFlowOptionsModel();
-        df.setInputDataSets(Collections.emptyList());
-
-        // Act
-        Optional<Map.Entry<String, String>> result = dplConfigService.getCustomOptionsEntry(df);
-
-        // Assert
-        assertFalse(result.isPresent(), "Result should be empty when input data sets are empty");
-    }
-
-    @Test
-    void testGetCustomOptionsEntry_NullDatasetFlowOptions() {
-        // Arrange
-        DatasetFlowOptionsModel df = new DatasetFlowOptionsModel();
-        InputEntityDetailsModel ied = new InputEntityDetailsModel();
-        ied.setDatasetFlowOptions(null);
-        df.setInputDataSets(Collections.singletonList(ied));
-
-        // Act
-        Optional<Map.Entry<String, String>> result = dplConfigService.getCustomOptionsEntry(df);
-
-        // Assert
-        assertFalse(result.isPresent(), "Result should be empty when dataset flow options are null");
-    }
-
-    @Test
-    void testGetCustomOptionsEntry_NullFileAndHadoopOptions() {
-        // Arrange
-        DatasetFlowOptionsModel df = new DatasetFlowOptionsModel();
-        InputEntityDetailsModel ied = new InputEntityDetailsModel();
-        DatasetFlowOptions datasetFlowOptions = new DatasetFlowOptions();
-        datasetFlowOptions.setFileOptions(null);
-        datasetFlowOptions.setHadoopOptions(null);
-        ied.setDatasetFlowOptions(datasetFlowOptions);
-        df.setInputDataSets(Collections.singletonList(ied));
-
-        // Act
-        Optional<Map.Entry<String, String>> result = dplConfigService.getCustomOptionsEntry(df);
-
-        // Assert
-        assertFalse(result.isPresent(), "Result should be empty when file and Hadoop options are null");
-    }
+    fileOptions.setCustomOptions(customOptions);
+    hadoopOptions.setCustomOptions(customOptions);
+    
+    options.setFileOptions(fileOptions);
+    options.setHadoopOptions(hadoopOptions);
+    
+    inputEntityDetails.setDatasetFlowOptions(options);
+    
+    List<InputEntityDetailsModel> inputDataSets = new ArrayList<>();
+    inputDataSets.add(inputEntityDetails);
+    
+    df.setInputDataSets(inputDataSets);
+    
+    Optional<Map.Entry<String, String>> result = dplConfigService.getCustomOptionsEntry(df);
+    
+    assertTrue(result.isPresent());
+    assertEquals("sample_database", result.get().getKey());
+    assertEquals("sample_table", result.get().getValue());
 }
