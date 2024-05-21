@@ -1,4 +1,19 @@
-@Mock
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+class DplConfigServiceTest {
+
+    @Mock
     private ResourceLoader resourceLoader;
 
     @Mock
@@ -30,3 +45,4 @@
         assertEquals(dataFileName, controlFile.getFileName());
         assertEquals("test-filename-$BUSINESS_DATE.tok", controlFile.getTokenFile());
     }
+}
